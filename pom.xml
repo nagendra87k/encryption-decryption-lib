@@ -37,7 +37,6 @@
 				<artifactId>spring-boot-autoconfigure</artifactId>
 			</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
