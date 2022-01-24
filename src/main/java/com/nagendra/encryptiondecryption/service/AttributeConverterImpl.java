@@ -1,17 +1,33 @@
 package com.nagendra.encryptiondecryption.service;
 
+import org.springframework.stereotype.Component;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.AttributeConverter;
+import java.io.UnsupportedEncodingException;
 import java.security.Key;
 import java.util.Base64;
 
+@Component
 public class AttributeConverterImpl implements AttributeConverter<String, String> {
 
     private static final String AES = "AES";
-    private static final byte[] encryptionKey = "keep-it-secret".getBytes();
+
+   /* @Value("${key.enc}")
+    private static String encyKey;*/
+
+    private static byte[] encryptionKey = new byte[0];
+
+    static {
+        try {
+            encryptionKey = "0123456789abcdφ".getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
 
     private final Cipher encryptCipher;
     private final Cipher decryptCipher;

@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.nagendra.encryptiondecryption.service
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.nagendra.encryptiondecryption.config.EncryptAutoConfiguration
