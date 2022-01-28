@@ -1,40 +1,51 @@
 package com.nagendra.encryptiondecryption.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.AttributeConverter;
-import java.security.Key;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
 import java.util.Base64;
 
+import static com.nagendra.encryptiondecryption.constant.EncryptionConstant.*;
+
 @Component
-@PropertySource({"classpath:/application.properties"})
 public class AttributeConverterImpl implements AttributeConverter<String, String> {
 
-    private static final String AES = "AES";
-
-    public static String key;
-
-    @Value("${key.enc}")
-    public static void setKey(String key) {
-        AttributeConverterImpl.key = key;
-    }
+    Logger logger = LoggerFactory.getLogger(AttributeConverterImpl.class);
 
     private final Cipher encryptCipher;
     private final Cipher decryptCipher;
 
-    public AttributeConverterImpl() throws Exception {
-        byte[] encryptionKey = key.getBytes("UTF-8");
-        Key key = new SecretKeySpec(encryptionKey, AES);
-        encryptCipher = Cipher.getInstance(AES);
-        encryptCipher.init(Cipher.ENCRYPT_MODE, key);
-        decryptCipher = Cipher.getInstance(AES);
-        decryptCipher.init(Cipher.DECRYPT_MODE, key);
+    public AttributeConverterImpl(@Value("${encryption.key}")  String keyCode) throws Exception {
+
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+
+        KeySpec spec = new PBEKeySpec(keyCode.toCharArray(), salt, 65536, 256); // AES-256
+        SecretKeyFactory f = SecretKeyFactory.getInstance(PBKDF2WITHHMACSHA1);
+        byte[] key = f.generateSecret(spec).getEncoded();
+        SecretKeySpec keySpec = new SecretKeySpec(key, AES);
+
+        byte[] ivBytes = new byte[16];
+        random.nextBytes(ivBytes);
+        IvParameterSpec iv = new IvParameterSpec(ivBytes);
+
+        encryptCipher = Cipher.getInstance(PKCS5PADDING);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, keySpec,iv);
+        decryptCipher = Cipher.getInstance(PKCS5PADDING);
+        decryptCipher.init(Cipher.DECRYPT_MODE, keySpec,iv);
     }
 
     @Override
