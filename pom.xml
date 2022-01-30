@@ -33,5 +33,7 @@
 			<version>2.6.3</version>
 		</dependency>
 	</dependencies>
-<finalName>encryption-decryption-lib</finalName>
+	<build>	
+		<finalName>encryption-decryption-lib</finalName>
+	</build>
 </project>
